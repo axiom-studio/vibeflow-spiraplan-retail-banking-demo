@@ -1,6 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { AppShell } from './components.js';
+import { Accounts } from './accounts.js';
+import './styles.css';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode><main><h1>Axiom Bank</h1><p>Demo · simulated funds</p></main></StrictMode>,
+  <StrictMode><AppShell><Accounts /></AppShell></StrictMode>,
 );

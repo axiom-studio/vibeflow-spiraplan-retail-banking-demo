@@ -1,4 +1,5 @@
 import type { PropsWithChildren, ReactNode } from 'react';
+import { useEffect, useRef } from 'react';
 
 export function AppShell({ children }: PropsWithChildren) {
   return <><a className="skip-link" href="#main">Skip to content</a><header className="app-header"><div className="header-inner">
@@ -8,7 +9,9 @@ export function AppShell({ children }: PropsWithChildren) {
   </div></header><main id="main" className="page" tabIndex={-1}>{children}</main><footer className="app-footer">Axiom Bank demo <span>Fictional accounts. No real funds.</span></footer></>;
 }
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
-  return <div className="page-heading"><div><h1 tabIndex={-1}>{title}</h1>{subtitle && <p className="muted">{subtitle}</p>}</div>{actions}</div>;
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { heading.current?.focus(); }, [title]);
+  return <div className="page-heading"><div><h1 ref={heading} tabIndex={-1}>{title}</h1>{subtitle && <p className="muted">{subtitle}</p>}</div>{actions}</div>;
 }
 export function MoneyText({ cents, signed = false }: { cents: number; signed?: boolean }) {
   return <span className={`money ${signed && cents > 0 ? 'positive' : ''}`}>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', signDisplay: signed ? 'always' : 'auto' }).format(cents / 100)}</span>;

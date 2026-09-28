@@ -1,9 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { AppShell } from './components.js';
-import { Accounts } from './accounts.js';
+import { App } from './app.js';
 import './styles.css';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode><AppShell><Accounts /></AppShell></StrictMode>,
+  <StrictMode><App /></StrictMode>,
 );

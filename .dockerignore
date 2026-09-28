@@ -1,0 +1,13 @@
+**
+!package.json
+!package-lock.json
+!tsconfig.json
+!tsconfig.server.json
+!vite.config.ts
+!eslint.config.js
+!index.html
+!client/**
+!server/**
+!tools/**
+!tests/**
+!fixtures/**

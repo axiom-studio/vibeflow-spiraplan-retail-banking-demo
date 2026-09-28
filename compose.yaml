@@ -1,0 +1,25 @@
+services:
+  app:
+    build: .
+    init: true
+    environment:
+      DATABASE_PATH: /data/banking.sqlite
+      DEMO_USER_ID: ${DEMO_USER_ID:-demo-user}
+      PORT: "3000"
+    ports:
+      - "127.0.0.1:${BANKING_PORT:-3000}:3000"
+    volumes:
+      - banking-data:/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  banking-data:

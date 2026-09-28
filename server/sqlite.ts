@@ -4,6 +4,8 @@ import { dirname } from 'node:path';
 import type { Account, Transaction, User } from './domain.js';
 import type { BankingRepository } from './repository.js';
 import { schema } from './schema.js';
+import { parseFixture } from './fixtures.js';
+import { importSqliteFixture } from './sqlite-import.js';
 
 export class SqliteRepository implements BankingRepository {
   private db: DatabaseSync;
@@ -15,6 +17,12 @@ export class SqliteRepository implements BankingRepository {
     const version = this.db.prepare('PRAGMA user_version').get()?.user_version;
     if (version === 0) this.db.exec(`BEGIN; ${schema} COMMIT;`);
     else if (version !== 1) { this.db.close(); throw new Error('Unsupported database schema version'); }
+  }
+
+  async isEmpty() { return !this.db.prepare('SELECT 1 FROM users LIMIT 1').get(); }
+
+  async importFixture(input: unknown, dryRun = false) {
+    return importSqliteFixture(this.db, parseFixture(input), dryRun);
   }
 
   async getUser(id: string): Promise<User | undefined> {

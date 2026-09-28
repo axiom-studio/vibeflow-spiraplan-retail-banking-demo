@@ -1,7 +1,9 @@
 import { createApp } from './app.js';
 import { SqliteRepository } from './sqlite.js';
+import { readFileSync } from 'node:fs';
 
 const repository = new SqliteRepository(process.env.DATABASE_PATH ?? 'data/banking.sqlite');
+if (await repository.isEmpty()) await repository.importFixture(JSON.parse(readFileSync('fixtures/example.json', 'utf8')));
 const port = Number(process.env.PORT ?? 3000);
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT must be between 1 and 65535');
 const app = createApp(repository, process.env.DEMO_USER_ID ?? 'demo-user', 'dist/client');

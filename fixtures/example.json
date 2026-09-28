@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "users": [{ "id": "demo-user", "name": "Alex Morgan" }],
+  "accounts": [
+    { "id": "everyday", "userId": "demo-user", "name": "Everyday Checking", "type": "Checking", "number": "4821", "currency": "USD", "openingBalanceCents": 425000 },
+    { "id": "savings", "userId": "demo-user", "name": "Rainy Day Savings", "type": "Savings", "number": "9063", "currency": "USD", "openingBalanceCents": 1845000 },
+    { "id": "investment", "userId": "demo-user", "name": "Investment Cash", "type": "Investment", "number": "7318", "currency": "USD", "openingBalanceCents": 620000 }
+  ],
+  "transactions": [
+    { "id": "txn-payroll", "userId": "demo-user", "accountId": "everyday", "date": "2026-09-25T16:00:00Z", "description": "Northstar Studio · Payroll", "amountCents": 320000, "type": "Credit", "category": "Income", "notes": "September salary" },
+    { "id": "txn-market", "userId": "demo-user", "accountId": "everyday", "date": "2026-09-27T19:30:00Z", "description": "Oak Street Market", "amountCents": -8425, "type": "Debit", "category": "Shopping" },
+    { "id": "txn-energy", "userId": "demo-user", "accountId": "everyday", "date": "2026-09-28T15:00:00Z", "description": "Pacific Energy", "amountCents": -12640, "type": "Debit", "category": "Bills", "notes": "Monthly electricity" },
+    { "id": "txn-savings", "userId": "demo-user", "accountId": "savings", "date": "2026-09-21T17:00:00Z", "description": "Savings deposit", "amountCents": 50000, "type": "Credit", "category": "Income" }
+  ]
+}

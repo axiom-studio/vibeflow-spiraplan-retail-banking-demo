@@ -16,6 +16,7 @@ export function AccountTransactions({ accountId }: { accountId: string }) {
   return <>
     <a className="back-link" href="#/accounts">← Back to accounts</a>
     <PageHeader title={account.name} subtitle={`${account.type} · Account ending ${account.number.slice(-4)}`} actions={<div className="balance-heading"><span>Current balance</span><MoneyText cents={account.balanceCents} /></div>} />
+    <a className="transfer-action" href={`#/transfer/${encodeURIComponent(accountId)}`}>Transfer from this account →</a>
     <div className="section-heading"><h2>Transactions</h2><label className="inline-field">Switch account<select value={accountId} onChange={e => { location.hash = `/accounts/${encodeURIComponent(e.target.value)}`; }}>{accounts.data?.map(a => <option key={a.id} value={a.id}>{a.name} · {a.number.slice(-4)}</option>)}</select></label></div>
     {entries.error ? <InlineAlert message={entries.error} retry={entries.retry} /> : entries.loading ? <LoadingState /> : !entries.data?.length ? <EmptyState title="No transactions yet"><p>Completed activity for this account will appear here.</p></EmptyState> : <TransactionList entries={entries.data} accountId={accountId} />}
   </>;

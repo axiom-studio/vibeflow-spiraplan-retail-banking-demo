@@ -81,3 +81,18 @@ test('empty database has a healthy connection and explicit missing-customer erro
     assert.equal((await response.json()).code, 'user_not_found');
   } finally { await new Promise<void>(resolve => server.close(() => resolve())); repository.close(); }
 });
+
+test('transaction detail expands only the owning customer transfer reference', async () => {
+  const f = fixture();
+  try {
+    const connection = new DatabaseSync(f.path);
+    connection.exec(`INSERT INTO accounts VALUES ('a2','alice','Savings','Savings','3333','USD',0,0);
+      INSERT INTO transfers VALUES ('transfer-1','alice','a','a2',100,'key','2026-09-28T12:00:00Z');
+      INSERT INTO transactions VALUES ('posting','a','2026-09-28T12:00:00Z','Internal transfer',-100,'Transfer','Transfer','', 'transfer-1');`);
+    connection.close();
+    const detail = await f.repository.getTransaction('alice', 'a', 'posting');
+    assert.equal(detail?.transfer?.destinationAccountId, 'a2');
+    assert.equal(detail?.transfer?.amountCents, 100);
+    assert.equal(await f.repository.getTransaction('bob', 'a', 'posting'), undefined);
+  } finally { f.cleanup(); }
+});

@@ -1,7 +1,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
-import type { Account, Transaction, User } from './domain.js';
+import type { Account, Transaction, Transfer, User } from './domain.js';
 import type { BankingRepository } from './repository.js';
 import { schema } from './schema.js';
 import { parseFixture } from './fixtures.js';
@@ -45,8 +45,12 @@ export class SqliteRepository implements BankingRepository {
   }
 
   async getTransaction(userId: string, accountId: string, id: string): Promise<Transaction | undefined> {
-    return this.db.prepare(`SELECT t.* FROM transactions t JOIN accounts a ON a.id = t.accountId
+    const transaction = this.db.prepare(`SELECT t.* FROM transactions t JOIN accounts a ON a.id = t.accountId
       WHERE a.userId = ? AND a.id = ? AND t.id = ?`).get(userId, accountId, id) as unknown as Transaction | undefined;
+    if (transaction?.transferId) {
+      transaction.transfer = this.db.prepare('SELECT * FROM transfers WHERE id = ? AND userId = ?').get(transaction.transferId, userId) as unknown as Transfer | undefined;
+    }
+    return transaction;
   }
 
   close() { this.db.close(); }

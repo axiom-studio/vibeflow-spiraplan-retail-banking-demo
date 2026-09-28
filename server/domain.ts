@@ -9,6 +9,11 @@ export interface Transaction {
   amountCents: number; type: 'Debit' | 'Credit' | 'Transfer';
   category: 'Income' | 'Shopping' | 'Bills' | 'Transfer' | 'Other';
   notes: string; transferId: string | null;
+  transfer?: Transfer;
+}
+export interface Transfer {
+  id: string; userId: string; sourceAccountId: string; destinationAccountId: string;
+  amountCents: number; idempotencyKey: string; date: string;
 }
 export class DomainError extends Error {
   constructor(public code: string, message: string, public status = 400) {

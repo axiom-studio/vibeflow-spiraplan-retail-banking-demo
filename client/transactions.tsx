@@ -1,7 +1,10 @@
 import type { Account, Transaction } from '../server/domain.js';
+import { useEffect } from 'react';
 import { useResource } from './api.js';
 import { PageHeader, MoneyText, EmptyState, InlineAlert, LoadingState } from './components.js';
 import { formatDate } from './navigation.js';
+
+const selections = new Map<string, { id: string; scroll: number }>();
 
 export function AccountTransactions({ accountId }: { accountId: string }) {
   const accounts = useResource<Account[]>('/api/accounts');
@@ -19,10 +22,16 @@ export function AccountTransactions({ accountId }: { accountId: string }) {
 }
 
 export function TransactionList({ entries, accountId }: { entries: Transaction[]; accountId: string }) {
+  const selected = selections.get(accountId);
+  useEffect(() => {
+    if (!selected) return;
+    document.getElementById(`transaction-${selected.id}`)?.focus({ preventScroll: true });
+    window.scrollTo(0, selected.scroll);
+  }, [selected]);
   return <div className="transaction-list"><table><caption className="sr-only">Account transactions, newest first</caption><thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Transaction ID</th><th className="amount-cell">Amount</th></tr></thead><tbody>
-    {entries.map(entry => <tr key={entry.id}>
+    {entries.map(entry => <tr key={entry.id} className={selected?.id === entry.id ? 'selected-row' : undefined}>
       <td data-label="Date">{formatDate(entry.date)}</td>
-      <td className="description-cell" data-label="Description"><a href={`#/accounts/${encodeURIComponent(accountId)}/transactions/${encodeURIComponent(entry.id)}`}>{entry.description}</a></td>
+      <td className="description-cell" data-label="Description"><div><a id={`transaction-${entry.id}`} onClick={() => selections.set(accountId, { id: entry.id, scroll: window.scrollY })} href={`#/accounts/${encodeURIComponent(accountId)}/transactions/${encodeURIComponent(entry.id)}`}>{entry.description}</a>{selected?.id === entry.id && <span className="selection-label">Selected</span>}</div></td>
       <td data-label="Type"><span className="type-tag">{entry.type}</span></td>
       <td className="transaction-id" data-label="Transaction ID">{entry.id}</td>
       <td className="amount-cell" data-label="Amount"><MoneyText cents={entry.amountCents} signed /></td>

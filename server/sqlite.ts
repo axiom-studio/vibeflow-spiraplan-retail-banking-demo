@@ -6,6 +6,8 @@ import type { BankingRepository } from './repository.js';
 import { schema } from './schema.js';
 import { parseFixture } from './fixtures.js';
 import { importSqliteFixture } from './sqlite-import.js';
+import { parseTransfer } from './transfer-input.js';
+import { createSqliteTransfer } from './sqlite-transfer.js';
 
 export class SqliteRepository implements BankingRepository {
   private db: DatabaseSync;
@@ -20,6 +22,10 @@ export class SqliteRepository implements BankingRepository {
   }
 
   async isEmpty() { return !this.db.prepare('SELECT 1 FROM users LIMIT 1').get(); }
+
+  async createTransfer(userId: string, input: unknown) {
+    return createSqliteTransfer(this.db, userId, parseTransfer(input));
+  }
 
   async importFixture(input: unknown, dryRun = false) {
     return importSqliteFixture(this.db, parseFixture(input), dryRun);

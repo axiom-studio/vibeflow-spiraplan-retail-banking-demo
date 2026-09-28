@@ -27,6 +27,10 @@ export function createApp(repository: BankingRepository, userId: string, staticD
     if (!transaction) throw new DomainError('not_found', 'Transaction not found.', 404);
     res.json(transaction);
   });
+  app.post('/api/transfers', async (req, res) => {
+    // The repository validates the boundary before starting its atomic operation.
+    res.json(await repository.createTransfer(userId, req.body));
+  });
   app.use('/api', (_req, res) => res.status(404).json({ code: 'not_found', message: 'Endpoint not found.' }));
   if (staticDir && existsSync(resolve(staticDir, 'index.html'))) {
     app.use(express.static(staticDir));

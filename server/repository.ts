@@ -6,6 +6,7 @@ export interface BankingRepository {
   isEmpty(): Promise<boolean>;
   importFixture(input: unknown, dryRun?: boolean): Promise<ImportResult>;
   createTransfer(userId: string, input: unknown): Promise<Transfer>;
+  getTransfer(userId: string, id: string): Promise<Transfer | undefined>;
   getUser(id: string): Promise<User | undefined>;
   listAccounts(userId: string): Promise<Account[]>;
   getAccount(userId: string, id: string): Promise<Account | undefined>;

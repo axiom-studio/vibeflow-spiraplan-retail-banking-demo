@@ -40,9 +40,20 @@ try {
   browser('click', 'button[type=submit]');
   browser('click', 'button.primary');
   browser('wait', '--text', 'Transfer complete');
+  const receipt = browser('eval', '({hash:location.hash,text:document.querySelector("main").textContent})').result;
+  assert.match(receipt.text, /FromEveryday Checking.*ToRainy Day Savings.*Amount\$10\.00.*Transaction ID/);
+  const reference = receipt.hash.split('/').at(-1);
+  assert.equal((await (await globalThis.fetch(`${base}/api/transfers/${reference}`)).json()).id, reference);
+  browser('eval', 'location.reload()');
+  browser('wait', '--text', 'Transfer complete');
+  assert.match(browser('eval', 'document.querySelector("main").textContent').result, new RegExp(reference));
   const after = await accounts();
   for (const [id, delta] of [['everyday', -1000], ['savings', 1000]]) {
     assert.equal(after.find(account => account.id === id).balanceCents, before.find(account => account.id === id).balanceCents + delta);
+    const entries = await (await globalThis.fetch(`${base}/api/accounts/${id}/transactions`)).json();
+    const postings = entries.filter(entry => entry.transferId === reference);
+    assert.equal(postings.length, 1);
+    assert.equal(postings[0].amountCents, delta);
   }
-  console.log('PASS field validation/focus, destination exclusion, review/edit without mutation, 320px layout, committed $10 transfer');
+  console.log('PASS validation/focus, review/edit, 320px layout, $10 transfer, durable receipt and both linked postings');
 } finally { browser('close'); }

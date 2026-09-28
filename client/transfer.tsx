@@ -26,7 +26,6 @@ function TransferForm({ accounts, sourceId }: { accounts: Account[]; sourceId: s
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState('');
   const [review, setReview] = useState<TransferInput>();
-  const [result, setResult] = useState<Transfer>();
   const [failure, setFailure] = useState('');
   const [busy, setBusy] = useState(false);
   const submitting = useRef(false);
@@ -51,11 +50,13 @@ function TransferForm({ accounts, sourceId }: { accounts: Account[]; sourceId: s
   async function confirm() {
     if (!review || submitting.current) return;
     submitting.current = true; setBusy(true); setFailure('');
-    try { setResult(await request<Transfer>('/api/transfers', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(review) })); }
+    try {
+      const result = await request<Transfer>('/api/transfers', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(review) });
+      location.hash = `/transfer/receipt/${encodeURIComponent(result.id)}`;
+    }
     catch (error) { setFailure(`${error instanceof Error ? error.message : 'Transfer could not be confirmed.'} Retry confirmation to safely check this same submission.`); }
     finally { submitting.current = false; setBusy(false); }
   }
-  if (result) return <div className="transfer-page"><PageHeader title="Transfer complete" /><p role="status">Your transfer has been completed.</p><dl className="details"><div><dt>Transaction ID</dt><dd>{result.id}</dd></div></dl><a href={`#/accounts/${encodeURIComponent(result.sourceAccountId)}`}>View source transactions</a></div>;
   return <div className="transfer-page"><PageHeader title={review ? 'Review transfer' : 'Transfer money'} subtitle={review ? 'Check the details before you confirm.' : 'Move money between your accounts.'} />
     {review ? <><TransferSummary accounts={accounts} transfer={review} />{failure && <InlineAlert message={failure} />}<div className="form-actions"><button className="primary" onClick={confirm} disabled={busy}>{busy ? 'Transferring…' : 'Confirm transfer'}</button><button disabled={busy} onClick={() => { setReview(undefined); setFailure(''); }}>Edit</button></div></>
       : <form noValidate onSubmit={prepare} className="transfer-form">

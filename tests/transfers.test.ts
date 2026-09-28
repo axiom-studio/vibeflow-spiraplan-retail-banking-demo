@@ -74,6 +74,9 @@ test('real HTTP boundary rejects malformed transfers and deduplicates concurrent
     assert.deepEqual(responses.map(response => response.status), [200, 200]);
     const results = await Promise.all(responses.map(response => response.json()));
     assert.equal(results[0].id, results[1].id);
+    assert.equal((await (await fetch(`${url}/${results[0].id}`)).json()).id, results[0].id);
+    assert.equal((await fetch(`${url}/missing`)).status, 404);
+    assert.equal(await f.repository.getTransfer('bob', results[0].id), undefined);
     const conflict = await post({ ...request, amountCents: 1 });
     assert.equal(conflict.status, 409);
     assert.equal((await conflict.json()).code, 'idempotency_conflict');

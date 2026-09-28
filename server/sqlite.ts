@@ -27,6 +27,10 @@ export class SqliteRepository implements BankingRepository {
     return createSqliteTransfer(this.db, userId, parseTransfer(input));
   }
 
+  async getTransfer(userId: string, id: string): Promise<Transfer | undefined> {
+    return this.db.prepare('SELECT * FROM transfers WHERE userId = ? AND id = ?').get(userId, id) as unknown as Transfer | undefined;
+  }
+
   async importFixture(input: unknown, dryRun = false) {
     return importSqliteFixture(this.db, parseFixture(input), dryRun);
   }

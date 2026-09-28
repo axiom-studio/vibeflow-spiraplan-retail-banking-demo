@@ -31,6 +31,11 @@ export function createApp(repository: BankingRepository, userId: string, staticD
     // The repository validates the boundary before starting its atomic operation.
     res.json(await repository.createTransfer(userId, req.body));
   });
+  app.get('/api/transfers/:id', async (req, res) => {
+    const transfer = await repository.getTransfer(userId, req.params.id);
+    if (!transfer) throw new DomainError('not_found', 'Transfer not found.', 404);
+    res.json(transfer);
+  });
   app.use('/api', (_req, res) => res.status(404).json({ code: 'not_found', message: 'Endpoint not found.' }));
   if (staticDir && existsSync(resolve(staticDir, 'index.html'))) {
     app.use(express.static(staticDir));
